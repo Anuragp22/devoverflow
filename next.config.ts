@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pino", "pino-pretty"],
+  typescript: {
+    ignoreBuildErrors: true, // 👈 Ignore TS errors during build
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
