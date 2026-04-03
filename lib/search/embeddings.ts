@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getUniqueTagNames } from "@/lib/tags";
 
 const EMBEDDING_MODEL =
-  process.env.GOOGLE_EMBEDDING_MODEL || "text-embedding-004";
+  process.env.GOOGLE_EMBEDDING_MODEL || "gemini-embedding-001";
 const MAX_EMBEDDING_TEXT_LENGTH = 6000;
 
 let embeddingClient: GoogleGenerativeAI | null = null;
