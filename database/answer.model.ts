@@ -6,6 +6,7 @@ export interface IAnswer {
   content: string;
   upvotes: number;
   downvotes: number;
+  voteVersion: number;
 }
 
 export interface IAnswerDoc extends IAnswer, Document {}
@@ -16,9 +17,13 @@ const AnswerSchema = new Schema<IAnswer>(
     content: { type: String, required: true },
     upvotes: { type: Number, default: 0 },
     downvotes: { type: Number, default: 0 },
+    voteVersion: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+AnswerSchema.index({ question: 1, createdAt: -1 });
+AnswerSchema.index({ author: 1, createdAt: -1 });
 
 const Answer = models?.Answer || model<IAnswer>("Answer", AnswerSchema);
 

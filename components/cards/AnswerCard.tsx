@@ -21,6 +21,7 @@ const AnswerCard = ({
   createdAt,
   upvotes,
   downvotes,
+  voteVersion,
   question,
   containerClasses,
   showReadMore = false,
@@ -66,6 +67,7 @@ const AnswerCard = ({
               hasVotedPromise={hasVotedPromise}
               upvotes={upvotes}
               downvotes={downvotes}
+              voteVersion={voteVersion ?? 0}
             />
           </Suspense>
         </div>

@@ -1,4 +1,4 @@
-import { model, models, Schema, Types } from "mongoose";
+import { model, models, Schema, Types, Document } from "mongoose";
 
 export interface IVote {
   author: Types.ObjectId;
@@ -17,6 +17,12 @@ const VoteSchema = new Schema<IVote>(
   },
   { timestamps: true }
 );
+
+VoteSchema.index(
+  { author: 1, actionType: 1, actionId: 1 },
+  { unique: true }
+);
+VoteSchema.index({ actionType: 1, actionId: 1 });
 
 const Vote = models?.Vote || model<IVote>("Vote", VoteSchema);
 
