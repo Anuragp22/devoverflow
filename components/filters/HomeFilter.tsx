@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 
 import { formUrlQuery, removeKeysFromUrlQuery } from "@/lib/url";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,11 @@ const HomeFilter = () => {
   const searchParams = useSearchParams();
   const filterParams = searchParams.get("filter");
   const [active, setActive] = useState(filterParams || "");
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setActive(filterParams || "");
+  }, [filterParams]);
 
   const handleTypeClick = (filter: string) => {
     let newUrl = "";
@@ -44,7 +49,9 @@ const HomeFilter = () => {
       });
     }
 
-    router.push(newUrl, { scroll: false });
+    startTransition(() => {
+      router.push(newUrl, { scroll: false });
+    });
   };
 
   return (
@@ -58,9 +65,10 @@ const HomeFilter = () => {
               ? "bg-primary-100 text-primary-500 hover:bg-primary-100 dark:bg-dark-400 dark:text-primary-500 dark:hover:bg-dark-400"
               : "bg-light-800 text-light-500 hover:bg-light-800 dark:bg-dark-300 dark:text-light-500 dark:hover:bg-dark-300"
           )}
+          disabled={isPending}
           onClick={() => handleTypeClick(filter.value)}
         >
-          {filter.name}
+          {isPending && active === filter.value ? "Loading..." : filter.name}
         </Button>
       ))}
     </div>

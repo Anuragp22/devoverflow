@@ -22,18 +22,24 @@ export async function signUpWithCredentials(
   }
 
   const { name, username, email, password } = validationResult.params!;
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedUsername = username.trim().toLowerCase();
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const existingUser = await User.findOne({ email }).session(session);
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    }).session(session);
 
     if (existingUser) {
       throw new Error("User already exists");
     }
 
-    const existingUsername = await User.findOne({ username }).session(session);
+    const existingUsername = await User.findOne({
+      username: normalizedUsername,
+    }).session(session);
 
     if (existingUsername) {
       throw new Error("Username already exists");
@@ -41,17 +47,20 @@ export async function signUpWithCredentials(
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const [newUser] = await User.create([{ username, name, email }], {
-      session,
-    });
+    const [newUser] = await User.create(
+      [{ username: normalizedUsername, name: name.trim(), email: normalizedEmail }],
+      {
+        session,
+      }
+    );
 
     await Account.create(
       [
         {
           userId: newUser._id,
-          name,
+          name: name.trim(),
           provider: "credentials",
-          providerAccountId: email,
+          providerAccountId: normalizedEmail,
           password: hashedPassword,
         },
       ],
@@ -60,7 +69,11 @@ export async function signUpWithCredentials(
 
     await session.commitTransaction();
 
-    await signIn("credentials", { email, password, redirect: false });
+    await signIn("credentials", {
+      email: normalizedEmail,
+      password,
+      redirect: false,
+    });
 
     return { success: true };
   } catch (error) {
@@ -82,18 +95,19 @@ export async function signInWithCredentials(
   }
 
   const { email, password } = validationResult.params!;
+  const normalizedEmail = email.trim().toLowerCase();
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (!existingUser) throw new NotFoundError("User");
 
     const existingAccount = await Account.findOne({
       provider: "credentials",
-      providerAccountId: email,
+      providerAccountId: normalizedEmail,
     });
 
-    if (!existingAccount) throw new NotFoundError("Account");
+    if (!existingAccount?.password) throw new NotFoundError("Account");
 
     const passwordMatch = await bcrypt.compare(
       password,
@@ -102,7 +116,11 @@ export async function signInWithCredentials(
 
     if (!passwordMatch) throw new Error("Password does not match");
 
-    await signIn("credentials", { email, password, redirect: false });
+    await signIn("credentials", {
+      email: normalizedEmail,
+      password,
+      redirect: false,
+    });
 
     return { success: true };
   } catch (error) {

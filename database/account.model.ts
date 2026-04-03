@@ -22,6 +22,12 @@ const AccountSchema = new Schema<IAccount>(
   { timestamps: true }
 );
 
+AccountSchema.index(
+  { provider: 1, providerAccountId: 1 },
+  { unique: true }
+);
+AccountSchema.index({ userId: 1, provider: 1 });
+
 const Account = models?.Account || model<IAccount>("Account", AccountSchema);
 
 export default Account;

@@ -27,15 +27,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           const { email, password } = validatedFields.data;
+          const normalizedEmail = email.trim().toLowerCase();
 
           const { data: existingAccount } = (await api.accounts.getByProvider(
-            email
+            normalizedEmail
           )) as ActionResponse<IAccountDoc>;
 
-          if (!existingAccount) {
+          if (
+            !existingAccount ||
+            existingAccount.provider !== "credentials" ||
+            !existingAccount.password
+          ) {
             console.error(
-              "[Credentials Authorize] No account found for email:",
-              email
+              "[Credentials Authorize] No credentials account found for email:",
+              normalizedEmail
             );
             return null;
           }
@@ -60,7 +65,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!isValidPassword) {
             console.error(
               "[Credentials Authorize] Invalid password for email:",
-              email
+              normalizedEmail
             );
             return null;
           }
@@ -131,15 +136,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return false;
         }
 
-        const userInfo = {
-          name: user.name!,
-          email: user.email!,
-          image: user.image!,
-          username:
+          const userInfo = {
+            name: user.name!,
+            email: user.email!,
+            image: user.image!,
+            username:
             account.provider === "github"
               ? (profile?.login as string)
               : (user.name?.toLowerCase() as string),
-        };
+          };
 
         const { success } = (await api.auth.oAuthSignIn({
           user: userInfo,

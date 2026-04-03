@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 
 import { formUrlQuery } from "@/lib/url";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ interface Props {
 const Pagination = ({ page = 1, isNext, containerClasses }: Props) => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleNavigation = (type: "prev" | "next") => {
     const nextPageNumber =
@@ -27,7 +29,9 @@ const Pagination = ({ page = 1, isNext, containerClasses }: Props) => {
       value: nextPageNumber.toString(),
     });
 
-    router.push(newUrl);
+    startTransition(() => {
+      router.push(newUrl);
+    });
   };
 
   return (
@@ -41,9 +45,12 @@ const Pagination = ({ page = 1, isNext, containerClasses }: Props) => {
       {Number(page) > 1 && (
         <Button
           onClick={() => handleNavigation("prev")}
+          disabled={isPending}
           className="light-border-2 btn flex min-h-[36px] items-center justify-center gap-2 border"
         >
-          <p className="body-medium text-dark200_light800">Prev</p>
+          <p className="body-medium text-dark200_light800">
+            {isPending ? "Loading..." : "Prev"}
+          </p>
         </Button>
       )}
 
@@ -55,9 +62,12 @@ const Pagination = ({ page = 1, isNext, containerClasses }: Props) => {
       {isNext && (
         <Button
           onClick={() => handleNavigation("next")}
+          disabled={isPending}
           className="light-border-2 btn flex min-h-[36px] items-center justify-center gap-2 border"
         >
-          <p className="body-medium text-dark200_light800">Next</p>
+          <p className="body-medium text-dark200_light800">
+            {isPending ? "Loading..." : "Next"}
+          </p>
         </Button>
       )}
     </div>

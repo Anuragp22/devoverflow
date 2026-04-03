@@ -1,14 +1,18 @@
 import Link from "next/link";
+import { PencilLine } from "lucide-react";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import React, { Suspense } from "react";
 
+import { auth } from "@/auth";
 import AllAnswers from "@/components/answers/AllAnswers";
 import TagCard from "@/components/cards/TagCard";
 import { Preview } from "@/components/editor/Preview";
 import AnswerForm from "@/components/forms/AnswerForm";
 import Metric from "@/components/Metric";
+import DeleteQuestion from "@/components/questions/DeleteQuestion";
 import SaveQuestion from "@/components/questions/SaveQuestion";
+import { Button } from "@/components/ui/button";
 import UserAvatar from "@/components/UserAvatar";
 import Votes from "@/components/votes/Votes";
 import ROUTES from "@/constants/routes";
@@ -21,6 +25,7 @@ import { formatNumber, getTimeStamp } from "@/lib/utils";
 const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   const { id } = await params;
   const { page, pageSize, filter } = await searchParams;
+  const session = await auth();
   const { success, data: question } = await getQuestion({ questionId: id });
 
   after(async () => {
@@ -50,6 +55,7 @@ const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
   });
 
   const { author, createdAt, answers, views, tags, content, title } = question;
+  const isAuthor = author._id.toString() === session?.user?.id;
 
   return (
     <>
@@ -69,12 +75,13 @@ const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
             </Link>
           </div>
 
-          <div className="flex items-center justify-end gap-4">
+          <div className="flex flex-wrap items-center justify-end gap-4">
             <Suspense fallback={<div>Loading...</div>}>
               <Votes
                 targetType="question"
                 upvotes={question.upvotes}
                 downvotes={question.downvotes}
+                voteVersion={question.voteVersion ?? 0}
                 targetId={question._id}
                 hasVotedPromise={hasVotedPromise}
               />
@@ -86,6 +93,24 @@ const QuestionDetails = async ({ params, searchParams }: RouteParams) => {
                 hasSavedQuestionPromise={hasSavedQuestionPromise}
               />
             </Suspense>
+
+            {isAuthor && (
+              <div className="flex items-center gap-3">
+                <Button
+                  asChild
+                  type="button"
+                  variant="secondary"
+                  className="min-h-[40px] gap-2 px-4 py-2"
+                >
+                  <Link href={ROUTES.EDIT_QUESTION(question._id)}>
+                    <PencilLine className="size-4" />
+                    <span>Edit</span>
+                  </Link>
+                </Button>
+
+                <DeleteQuestion questionId={question._id} />
+              </div>
+            )}
           </div>
         </div>
 

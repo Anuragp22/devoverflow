@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 import { toast } from "@/hooks/use-toast";
 import { toggleSaveQuestion } from "@/lib/actions/collection.action";
@@ -20,8 +20,12 @@ const SaveQuestion = ({
   const { data } = use(hasSavedQuestionPromise);
 
   const { saved: hasSaved } = data || {};
-
+  const [isSaved, setIsSaved] = useState(hasSaved || false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(hasSaved || false);
+  }, [hasSaved]);
 
   const handleSave = async () => {
     if (isLoading) return;
@@ -32,16 +36,24 @@ const SaveQuestion = ({
       });
 
     setIsLoading(true);
+    const previousSaved = isSaved;
+    setIsSaved((current) => !current);
 
     try {
-      const { success, data, error } = await toggleSaveQuestion({ questionId });
+      const { success, data, error } = await toggleSaveQuestion({
+        questionId,
+      });
 
       if (!success) throw new Error(error?.message || "An error occurred");
+
+      setIsSaved(data?.saved || false);
 
       toast({
         title: `Question ${data?.saved ? "saved" : "unsaved"} successfully`,
       });
     } catch (error) {
+      setIsSaved(previousSaved);
+
       toast({
         title: "Error",
         description:
@@ -55,7 +67,7 @@ const SaveQuestion = ({
 
   return (
     <Image
-      src={hasSaved ? "/icons/star-filled.svg" : "/icons/star-red.svg"}
+      src={isSaved ? "/icons/star-filled.svg" : "/icons/star-red.svg"}
       width={18}
       height={18}
       alt="save"

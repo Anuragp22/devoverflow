@@ -1,6 +1,8 @@
 "use client";
 
+import { ReloadIcon } from "@radix-ui/react-icons";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 
 import {
   Select,
@@ -31,6 +33,7 @@ const CommonFilter = ({
 }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const paramsFilter = searchParams.get("filter");
 
@@ -41,7 +44,9 @@ const CommonFilter = ({
       value,
     });
 
-    router.push(newUrl, { scroll: false });
+    startTransition(() => {
+      router.push(newUrl, { scroll: false });
+    });
   };
 
   return (
@@ -49,6 +54,7 @@ const CommonFilter = ({
       <Select
         onValueChange={handleUpdateParams}
         defaultValue={paramsFilter || undefined}
+        disabled={isPending}
       >
         <SelectTrigger
           className={cn(
@@ -60,6 +66,7 @@ const CommonFilter = ({
           <div className="line-clamp-1 flex-1 text-left">
             <SelectValue placeholder="Select a filter" />
           </div>
+          {isPending && <ReloadIcon className="size-4 animate-spin" />}
         </SelectTrigger>
 
         <SelectContent>

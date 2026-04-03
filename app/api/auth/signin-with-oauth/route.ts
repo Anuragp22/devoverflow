@@ -9,6 +9,28 @@ import { ValidationError } from "@/lib/http-errors";
 import dbConnect from "@/lib/mongoose";
 import { SignInWithOAuthSchema } from "@/lib/validations";
 
+async function resolveUniqueUsername(
+  username: string,
+  session: mongoose.ClientSession
+) {
+  const baseUsername =
+    slugify(username, {
+      lower: true,
+      strict: true,
+      trim: true,
+    }) || "user";
+
+  let candidate = baseUsername;
+  let suffix = 1;
+
+  while (await User.exists({ username: candidate }).session(session)) {
+    candidate = `${baseUsername}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}
+
 export async function POST(request: Request) {
   const { provider, providerAccountId, user } = await request.json();
 
@@ -28,18 +50,24 @@ export async function POST(request: Request) {
       throw new ValidationError(validatedData.error.flatten().fieldErrors);
 
     const { name, username, email, image } = user;
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const slugifiedUsername = slugify(username, {
-      lower: true,
-      strict: true,
-      trim: true,
-    });
-
-    let existingUser = await User.findOne({ email }).session(session);
+    let existingUser = await User.findOne({ email: normalizedEmail }).session(
+      session
+    );
 
     if (!existingUser) {
+      const slugifiedUsername = await resolveUniqueUsername(username, session);
+
       [existingUser] = await User.create(
-        [{ name, username: slugifiedUsername, email, image }],
+        [
+          {
+            name: name.trim(),
+            username: slugifiedUsername,
+            email: normalizedEmail,
+            image,
+          },
+        ],
         { session }
       );
     } else {
@@ -84,6 +112,6 @@ export async function POST(request: Request) {
     await session.abortTransaction();
     return handleError(error, "api") as APIErrorResponse;
   } finally {
-    session.endSession();
+    await session.endSession();
   }
 }
