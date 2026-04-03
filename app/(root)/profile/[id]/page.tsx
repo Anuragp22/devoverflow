@@ -11,21 +11,15 @@ import Pagination from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ProfileLink from "@/components/user/ProfileLink";
+import Stats from "@/components/user/Stats";
 import UserAvatar from "@/components/UserAvatar";
+import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
 import {
   getUser,
   getUserQuestions,
   getUsersAnswers,
   getUserTopTags,
 } from "@/lib/actions/user.action";
-
-
-
-import Stats from "@/components/user/Stats";
-
-import page from "../../page";
-
-import { EMPTY_ANSWERS, EMPTY_QUESTION, EMPTY_TAGS } from "@/constants/states";
 
 const Profile = async ({ params, searchParams }: RouteParams) => {
   // /12312313
@@ -81,8 +75,6 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
   const { answers, isNext: hasMoreAnswers } = userAnswers!;
   const { tags } = userTopTags!;
 
-  console.log("userTopTags", userTopTags);
-
   const { _id, name, image, portfolio, location, createdAt, username, bio } =
     user;
 
@@ -113,7 +105,7 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
                 />
               )}
               {location && (
-                <ProfileLink imgUrl="/icons/location.svg" title="Portfolio" />
+                <ProfileLink imgUrl="/icons/location.svg" title={location} />
               )}
               <ProfileLink
                 imgUrl="/icons/calendar.svg"
@@ -214,9 +206,9 @@ const Profile = async ({ params, searchParams }: RouteParams) => {
               empty={EMPTY_TAGS}
               success={userTopTagsSuccess}
               error={userTopTagsError}
-              render={(TAGS) => (
+              render={(topTags) => (
                 <div className="mt-3 flex w-full flex-col gap-4">
-                  {tags.map((tag) => (
+                  {topTags.map((tag) => (
                     <TagCard
                       key={tag._id}
                       _id={tag._id}

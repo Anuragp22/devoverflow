@@ -236,7 +236,7 @@ export async function hasVoted(
   const validationResult = await action({
     params,
     schema: HasVotedSchema,
-    authorize: true,
+    fetchSession: true,
   });
 
   if (validationResult instanceof Error) {
@@ -245,6 +245,13 @@ export async function hasVoted(
 
   const { targetId, targetType } = validationResult.params!;
   const userId = validationResult.session?.user?.id;
+
+  if (!userId) {
+    return {
+      success: true,
+      data: { hasUpvoted: false, hasDownvoted: false },
+    };
+  }
 
   try {
     const vote = await Vote.findOne({
@@ -255,7 +262,7 @@ export async function hasVoted(
 
     if (!vote) {
       return {
-        success: false,
+        success: true,
         data: { hasUpvoted: false, hasDownvoted: false },
       };
     }

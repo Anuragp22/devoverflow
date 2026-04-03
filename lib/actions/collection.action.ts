@@ -19,7 +19,7 @@ export async function toggleSaveQuestion(
   const validationResult = await action({
     params,
     schema: CollectionBaseSchema,
-    authorize: true,
+    fetchSession: true,
   });
 
   if (validationResult instanceof Error) {
@@ -28,6 +28,13 @@ export async function toggleSaveQuestion(
 
   const { questionId } = validationResult.params!;
   const userId = validationResult.session?.user?.id;
+
+  if (!userId) {
+    return {
+      success: true,
+      data: { saved: false },
+    };
+  }
 
   try {
     const question = await Question.findById(questionId);

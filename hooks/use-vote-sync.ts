@@ -49,10 +49,10 @@ export function useVoteSync({ targetId, targetType, onVoteUpdate }: Params) {
     };
 
     const intervalId = window.setInterval(() => {
-      void pollVoteSnapshot(targetType, targetId, onVoteUpdate);
+      pollVoteSnapshot(targetType, targetId, onVoteUpdate).catch(() => {});
     }, POLL_INTERVAL_MS);
 
-    void pollVoteSnapshot(targetType, targetId, onVoteUpdate);
+    pollVoteSnapshot(targetType, targetId, onVoteUpdate).catch(() => {});
 
     if (eventSource) {
       eventSource.addEventListener(
@@ -64,7 +64,7 @@ export function useVoteSync({ targetId, targetType, onVoteUpdate }: Params) {
 
       eventSource.onerror = () => {
         if (!isUnmounted) {
-          void pollVoteSnapshot(targetType, targetId, onVoteUpdate);
+          pollVoteSnapshot(targetType, targetId, onVoteUpdate).catch(() => {});
         }
       };
     }

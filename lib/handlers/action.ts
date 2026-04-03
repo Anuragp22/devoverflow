@@ -12,6 +12,7 @@ type ActionOptions<T> = {
   params?: T;
   schema?: ZodSchema<T>;
   authorize?: boolean;
+  fetchSession?: boolean;
 };
 
 // 1. Checking whether the schema and params are provided and validated.
@@ -23,6 +24,7 @@ async function action<T>({
   params,
   schema,
   authorize = false,
+  fetchSession = false,
 }: ActionOptions<T>) {
   if (schema && params) {
     try {
@@ -40,10 +42,10 @@ async function action<T>({
 
   let session: Session | null = null;
 
-  if (authorize) {
+  if (authorize || fetchSession) {
     session = await auth();
 
-    if (!session) {
+    if (authorize && !session) {
       return new UnauthorizedError();
     }
   }

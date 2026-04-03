@@ -70,6 +70,7 @@ const LocalSearch = ({
   }, [
     keysToRemoveOnChange,
     pathname,
+    query,
     queryKey,
     route,
     router,
