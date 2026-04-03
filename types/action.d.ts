@@ -30,6 +30,10 @@ interface GetQuestionParams {
   questionId: string;
 }
 
+interface DeleteQuestionParams {
+  questionId: string;
+}
+
 interface GetTagQuestionsParams extends Omit<PaginatedSearchParams, "filter"> {
   tagId: string;
 }
@@ -62,6 +66,23 @@ type HasVotedParams = Pick<CreateVoteParams, "targetId" | "targetType">;
 interface HasVotedResponse {
   hasUpvoted: boolean;
   hasDownvoted: boolean;
+}
+
+interface VoteCountResponse {
+  targetId: string;
+  targetType: "question" | "answer";
+  upvotes: number;
+  downvotes: number;
+  voteVersion: number;
+}
+
+interface VoteActionResponse extends VoteCountResponse, HasVotedResponse {}
+
+interface QuestionSearchResult {
+  questions: Question[];
+  isNext: boolean;
+  searchMode: "keyword" | "hybrid" | "none";
+  scores: Record<string, number>;
 }
 
 interface CollectionBaseParams {

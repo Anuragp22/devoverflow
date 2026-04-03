@@ -12,6 +12,7 @@ import { z } from "zod";
 import ROUTES from "@/constants/routes";
 import { toast } from "@/hooks/use-toast";
 import { createQuestion, editQuestion } from "@/lib/actions/question.action";
+import { normalizeTagName } from "@/lib/tags";
 import { AskQuestionSchema } from "@/lib/validations";
 
 import TagCard from "../cards/TagCard";
@@ -57,7 +58,7 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
     console.log(field, e);
     if (e.key === "Enter") {
       e.preventDefault();
-      const tagInput = e.currentTarget.value.trim();
+      const tagInput = normalizeTagName(e.currentTarget.value);
 
       if (tagInput && tagInput.length < 15 && !field.value.includes(tagInput)) {
         form.setValue("tags", [...field.value, tagInput]);

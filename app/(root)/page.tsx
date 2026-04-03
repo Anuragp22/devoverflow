@@ -17,16 +17,17 @@ interface SearchParams {
 }
 
 const Home = async ({ searchParams }: SearchParams) => {
-  const { page, pageSize, query, filter } = await searchParams;
+  const { page, pageSize, query, semanticQuery, filter } = await searchParams;
 
   const { success, data, error } = await getQuestions({
     page: Number(page) || 1,
     pageSize: Number(pageSize) || 10,
     query: query || "",
+    semanticQuery: semanticQuery || "",
     filter: filter || "",
   });
 
-  const { questions, isNext } = data || {};
+  const { questions, isNext, searchMode } = data || {};
 
   return (
     <>
@@ -45,6 +46,8 @@ const Home = async ({ searchParams }: SearchParams) => {
           route="/"
           imgSrc="/icons/search.svg"
           placeholder="Search questions..."
+          queryKey="query"
+          keysToRemoveOnChange={["semanticQuery"]}
           otherClasses="flex-1"
         />
 
@@ -54,6 +57,28 @@ const Home = async ({ searchParams }: SearchParams) => {
           containerClasses="hidden max-md:flex"
         />
       </section>
+
+      <section className="mt-5">
+        <LocalSearch
+          route="/"
+          imgSrc="/icons/stars.svg"
+          placeholder="Describe your issue to find related questions..."
+          queryKey="semanticQuery"
+          keysToRemoveOnChange={["query"]}
+          otherClasses="flex-1"
+        />
+
+        <p className="small-regular text-dark400_light700 mt-2">
+          Direct search is the main search. Use this second bar only when you
+          want AI-assisted related-question discovery.
+          {searchMode === "hybrid" && " Showing AI-related matches."}
+          {searchMode === "keyword" &&
+            semanticQuery &&
+            !query &&
+            " AI search is unavailable here, so this is using keyword fallback."}
+        </p>
+      </section>
+
       <HomeFilter />
 
       <DataRenderer

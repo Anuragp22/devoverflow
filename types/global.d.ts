@@ -21,6 +21,10 @@ interface Question {
   downvotes: number;
   answers: number;
   views: number;
+  voteVersion: number;
+  embeddingModel?: string;
+  embeddingUpdatedAt?: Date;
+  searchScore?: number;
   createdAt: Date;
 }
 
@@ -49,6 +53,7 @@ interface PaginatedSearchParams {
   page?: number;
   pageSize?: number;
   query?: string;
+  semanticQuery?: string;
   filter?: string;
   sort?: string;
 }
@@ -60,6 +65,7 @@ interface Answer {
   createdAt: Date;
   upvotes: number;
   downvotes: number;
+  voteVersion: number;
   question: string;
 }
 

@@ -14,6 +14,9 @@ const TagQuestionSchema = new Schema<ITagQuestion>(
   { timestamps: true }
 );
 
+TagQuestionSchema.index({ tag: 1, question: 1 }, { unique: true });
+TagQuestionSchema.index({ question: 1 });
+
 const TagQuestion =
   models?.TagQuestion || model<ITagQuestion>("TagQuestion", TagQuestionSchema);
 

@@ -134,10 +134,15 @@ export const GetQuestionSchema = z.object({
   questionId: z.string().min(1, { message: "Question ID is required." }),
 });
 
+export const DeleteQuestionSchema = z.object({
+  questionId: z.string().min(1, { message: "Question ID is required." }),
+});
+
 export const PaginatedSearchParamsSchema = z.object({
   page: z.number().int().positive().default(1),
   pageSize: z.number().int().positive().default(10),
   query: z.string().optional(),
+  semanticQuery: z.string().optional(),
   filter: z.string().optional(),
   sort: z.string().optional(),
 });
@@ -191,6 +196,8 @@ export const HasVotedSchema = CreateVoteSchema.pick({
   targetId: true,
   targetType: true,
 });
+
+export const GetVoteCountsSchema = HasVotedSchema;
 
 export const CollectionBaseSchema = z.object({
   questionId: z.string().min(1, { message: "Question ID is required." }),
