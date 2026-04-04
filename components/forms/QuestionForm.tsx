@@ -37,6 +37,14 @@ interface Params {
   isEdit?: boolean;
 }
 
+const getQuestionId = (data: unknown) => {
+  if (!data || typeof data !== "object" || !("_id" in data)) {
+    return null;
+  }
+
+  return String((data as { _id: { toString(): string } | string })._id);
+};
+
 const QuestionForm = ({ question, isEdit = false }: Params) => {
   const router = useRouter();
   const editorRef = useRef<MDXEditorMethods>(null);
@@ -107,12 +115,10 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
             description: "Question updated successfully",
           });
 
-          if (
-            result.data &&
-            typeof result.data === "object" &&
-            "_id" in result.data
-          ) {
-            router.push(ROUTES.QUESTION((result.data as { _id: string })._id));
+          const questionId = getQuestionId(result.data);
+
+          if (questionId) {
+            router.push(ROUTES.QUESTION(questionId));
           }
         } else {
           toast({
@@ -133,12 +139,10 @@ const QuestionForm = ({ question, isEdit = false }: Params) => {
           description: "Question created successfully",
         });
 
-        if (
-          result.data &&
-          typeof result.data === "object" &&
-          "_id" in result.data
-        ) {
-          router.push(ROUTES.QUESTION((result.data as { _id: string })._id));
+        const questionId = getQuestionId(result.data);
+
+        if (questionId) {
+          router.push(ROUTES.QUESTION(questionId));
         }
       } else {
         toast({
