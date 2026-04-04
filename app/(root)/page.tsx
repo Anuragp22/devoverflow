@@ -5,8 +5,7 @@ import DataRenderer from "@/components/DataRenderer";
 import CommonFilter from "@/components/filters/CommonFilter";
 import HomeFilter from "@/components/filters/HomeFilter";
 import Pagination from "@/components/Pagination";
-import LocalSearch from "@/components/search/LocalSearch";
-import SemanticSearch from "@/components/search/SemanticSearch";
+import HomeSearch from "@/components/search/HomeSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routes";
@@ -28,7 +27,7 @@ const Home = async ({ searchParams }: SearchParams) => {
     filter: filter || "",
   });
 
-  const { questions, isNext, searchMode } = data || {};
+  const { questions, isNext } = data || {};
 
   return (
     <>
@@ -43,14 +42,7 @@ const Home = async ({ searchParams }: SearchParams) => {
         </Button>
       </section>
       <section className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
-        <LocalSearch
-          route="/"
-          imgSrc="/icons/search.svg"
-          placeholder="Search questions..."
-          queryKey="query"
-          keysToRemoveOnChange={["semanticQuery"]}
-          otherClasses="flex-1"
-        />
+        <HomeSearch />
 
         <CommonFilter
           filters={HomePageFilters}
@@ -58,12 +50,6 @@ const Home = async ({ searchParams }: SearchParams) => {
           containerClasses="hidden max-md:flex"
         />
       </section>
-
-      <SemanticSearch
-        initialValue={semanticQuery || ""}
-        searchMode={searchMode}
-        hasKeywordQuery={Boolean(query)}
-      />
 
       <HomeFilter />
 
