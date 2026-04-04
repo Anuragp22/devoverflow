@@ -6,6 +6,7 @@ import CommonFilter from "@/components/filters/CommonFilter";
 import HomeFilter from "@/components/filters/HomeFilter";
 import Pagination from "@/components/Pagination";
 import LocalSearch from "@/components/search/LocalSearch";
+import SemanticSearch from "@/components/search/SemanticSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
 import ROUTES from "@/constants/routes";
@@ -58,26 +59,11 @@ const Home = async ({ searchParams }: SearchParams) => {
         />
       </section>
 
-      <section className="mt-5">
-        <LocalSearch
-          route="/"
-          imgSrc="/icons/stars.svg"
-          placeholder="Describe your issue to find related questions..."
-          queryKey="semanticQuery"
-          keysToRemoveOnChange={["query"]}
-          otherClasses="flex-1"
-        />
-
-        <p className="small-regular text-dark400_light700 mt-2">
-          Direct search is the main search. Use this second bar only when you
-          want AI-assisted related-question discovery.
-          {searchMode === "hybrid" && " Showing AI-related matches."}
-          {searchMode === "keyword" &&
-            semanticQuery &&
-            !query &&
-            " AI search is unavailable here, so this is using keyword fallback."}
-        </p>
-      </section>
+      <SemanticSearch
+        initialValue={semanticQuery || ""}
+        searchMode={searchMode}
+        hasKeywordQuery={Boolean(query)}
+      />
 
       <HomeFilter />
 
